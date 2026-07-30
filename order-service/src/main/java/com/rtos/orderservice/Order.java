@@ -14,7 +14,7 @@ public class Order {
     @Id
     private String id;
     private String customerId;
-    private BigDecimal amount;
+    private int quantity;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status; // PENDING, CONFIRMED, FAILED
@@ -22,10 +22,10 @@ public class Order {
 
     protected Order() {}
 
-    public Order(String id, String customerId, BigDecimal amount) {
+    public Order(String id, String productId, String customerId, int quantity) {
         this.id = id;
         this.customerId = customerId;
-        this.amount = amount;
+        this.quantity = quantity;
         this.status = OrderStatus.PENDING;
         this.createdAt = Instant.now();
     }

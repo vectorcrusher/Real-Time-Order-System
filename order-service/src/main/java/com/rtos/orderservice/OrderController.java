@@ -27,15 +27,15 @@ public class OrderController {
     public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request) {
         try {
             String orderId = UUID.randomUUID().toString();
-            Order order = new Order(orderId, request.customerId(), request.amount());
+            Order order = new Order(orderId, request.productId(), request.customerId(), request.quantity());
 
             orderRepository.save(order);
 
             OrderCreatedEvent event = new OrderCreatedEvent(
-                    orderId, request.customerId(), request.amount(), Instant.now()
+                    orderId, request.productId(), request.customerId(), request.quantity(), Instant.now()
             );
 
-            // key by orderId so all events for this order land on the same partition
+            // key by productId so all events for this order land on the same partition
             kafkaTemplate.send("order-events", orderId, event);
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(order);

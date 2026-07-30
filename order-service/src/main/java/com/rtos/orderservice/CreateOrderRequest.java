@@ -1,9 +1,8 @@
 package com.rtos.orderservice;
 
-import java.math.BigDecimal;
 
 public record CreateOrderRequest (
-    String orderId,
+    String productId,
     String customerId,
-    BigDecimal amount
+    int quantity
 ) {}

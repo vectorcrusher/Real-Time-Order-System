@@ -24,12 +24,12 @@ public class OrderStatusListener {
 //    @KafkaListener(topics = "payment-events", groupId = "order-service")
 //    @KafkaHandler
 //    public void handlePaymentProcessed(PaymentProcessedEvent event) {
-//        updateStatus(event.orderId(), OrderStatus.COMPLETED);
+//        updateStatus(event.productId(), OrderStatus.COMPLETED);
 //    }
 //
 //    @KafkaHandler
 //    public void handlePaymentFailed(PaymentFailedEvent event) {
-//        updateStatus(event.orderId(), OrderStatus.FAILED);
+//        updateStatus(event.productId(), OrderStatus.FAILED);
 //    }
 
     private void updateStatus(String orderId, OrderStatus status) {

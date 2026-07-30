@@ -1,12 +1,11 @@
 package com.rtos.common.order;
 
-
-import java.math.BigDecimal;
 import java.time.Instant;
 
 public record OrderCreatedEvent(
         String orderId,
+        String productId,
         String customerId,
-        BigDecimal amount,
+        int quantity,
         Instant createdAt
 ) {}
