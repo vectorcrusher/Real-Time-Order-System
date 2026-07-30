@@ -8,6 +8,12 @@
 		<version>4.0.8-SNAPSHOT</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+	<modules>
+		<module>order-service</module>
+		<module>payment-service</module>
+		<module>inventory-service</module>
+		<module>notification-service</module>
+	</modules>
 	<groupId>com.RealTimeOrderSys</groupId>
 	<artifactId>rtos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -50,6 +56,10 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>
