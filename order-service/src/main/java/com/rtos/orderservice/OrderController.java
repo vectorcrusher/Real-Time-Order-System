@@ -24,18 +24,22 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request) {
-        String orderId = UUID.randomUUID().toString();
-        Order order = new Order(orderId, request.customerId(), request.amount());
+        try {
+            String orderId = UUID.randomUUID().toString();
+            Order order = new Order(orderId, request.customerId(), request.amount());
 
-        //orderRepository.save(order);
+            orderRepository.save(order);
 
-        OrderCreatedEvent event = new OrderCreatedEvent(
-                orderId, request.customerId(), request.amount(), Instant.now()
-        );
+            OrderCreatedEvent event = new OrderCreatedEvent(
+                    orderId, request.customerId(), request.amount(), Instant.now()
+            );
 
-        // key by orderId so all events for this order land on the same partition
-        kafkaTemplate.send("order-events", orderId, event);
+            // key by orderId so all events for this order land on the same partition
+            kafkaTemplate.send("order-events", orderId, event);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(order);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(order);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
