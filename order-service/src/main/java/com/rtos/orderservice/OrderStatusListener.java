@@ -1,8 +1,10 @@
 package com.rtos.orderservice;
 
+import com.rtos.common.inventory.InventoryNotFound;
 import com.rtos.common.inventory.InventoryOutOfStockEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +19,14 @@ public class OrderStatusListener {
     }
 
     @KafkaListener(topics = "inventory-events", groupId = "order-service")
+    @KafkaHandler
     public void handleOutOfStock(InventoryOutOfStockEvent event) {
+        updateStatus(event.orderId(), OrderStatus.FAILED);
+    }
+
+    @KafkaListener(topics = "inventory-events", groupId = "order-service")
+    @KafkaHandler
+    public void handleNotFound(InventoryNotFound event) {
         updateStatus(event.orderId(), OrderStatus.FAILED);
     }
 
