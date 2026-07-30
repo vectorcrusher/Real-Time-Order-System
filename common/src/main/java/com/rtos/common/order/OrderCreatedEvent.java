@@ -1,4 +1,4 @@
-package com.rtos.orderservice;
+package com.rtos.common.order;
 
 
 import java.math.BigDecimal;
