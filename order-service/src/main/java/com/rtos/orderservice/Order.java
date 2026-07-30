@@ -1,14 +1,13 @@
 package com.rtos.orderservice;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
+@Data
 @Table(name = "orders")
 public class Order {
 
@@ -16,6 +15,8 @@ public class Order {
     private String id;
     private String customerId;
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
     private OrderStatus status; // PENDING, CONFIRMED, FAILED
     private Instant createdAt;
 
