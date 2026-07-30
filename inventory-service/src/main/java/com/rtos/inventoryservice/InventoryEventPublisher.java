@@ -1,27 +1,48 @@
 package com.rtos.inventoryservice;
 
+import com.rtos.common.inventory.InventoryNotFound;
+import com.rtos.common.inventory.InventoryOutOfStockEvent;
+import com.rtos.common.inventory.InventoryReservedEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class InventoryEventPublisher {
-    @Autowired
-    private KafkaTemplate<String, Reservation> kafkaTemplate;
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaOutOfStockTemplate;
+    private static final String TOPIC = "inventory-events";
 
-    public void publishReserve(Reservation reservation) {
-        kafkaTemplate.send("inventory-reserved", reservation.getOrderId(), reservation);
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-        log.info("Reservation message published");
+    public InventoryEventPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void publishOutOfStockEvent(String orderId) {
-        kafkaOutOfStockTemplate.send("inventory-out-of-stock", orderId);
-        log.info("OutOfStock message published");
+    public void publishReserved(String orderId, String productId, int quantity) {
+        InventoryReservedEvent event = new InventoryReservedEvent(orderId, productId, quantity);
+        send(orderId, event);
+    }
+
+    public void publishOutOfStock(String orderId, String productId, String reason) {
+        InventoryOutOfStockEvent event = new InventoryOutOfStockEvent(orderId, productId, reason);
+        send(orderId, event);
+    }
+
+    public void publishProductNotFound(String orderId, String productId) {
+        InventoryNotFound event = new InventoryNotFound(orderId, productId);
+        send(orderId, event);
+    }
+
+    private void send(String key, Object event) {
+        kafkaTemplate.send(TOPIC, key, event).whenComplete((result, ex) -> {
+            if (ex != null) {
+                log.error("Failed to publish event {} for key {}", event.getClass().getSimpleName(), key, ex);
+            } else {
+                log.info("Published {} for key {} to partition {}",
+                        event.getClass().getSimpleName(), key,
+                        result.getRecordMetadata().partition());
+            }
+        });
     }
 }

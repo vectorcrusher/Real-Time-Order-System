@@ -20,12 +20,20 @@ public class InventoryService {
 
     @Transactional
     public void processOrder(String orderId, String productId, int quantity) {
+        if (reservationRepository.existsById(orderId)) {
+            log.info("Idempotent check. Reservation already exists for orderId={}", orderId);
+            return;
+        }
+
         Inventory inventory = inventoryRepository.findById(productId).orElse(null);
 
-        Assert.notNull(inventory, "Product could not be found");
+        if (inventory == null) {
+            inventoryEventPublisher.publishProductNotFound(orderId, productId);
+            return;
+        }
 
         if (inventory.getQuantity() < quantity) {
-            inventoryEventPublisher.publishOutOfStockEvent(orderId);
+            inventoryEventPublisher.publishOutOfStock(orderId, productId, "OUT OF STOCK");
             return;
         }
 
@@ -37,7 +45,7 @@ public class InventoryService {
 
         log.info("Reservation has been saved: {}", reservation);
 
-        inventoryEventPublisher.publishReserve(reservation);
+        inventoryEventPublisher.publishReserved(reservation.getOrderId(), productId, quantity);
     }
 
     @Transactional
